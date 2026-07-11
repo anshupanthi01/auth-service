@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from users.config import Settings
 
-DATABASE_URL = "sqlite+aiosqlite:///./auth.db"
+DATABASE_URL = Settings.DATABASE_URL
 
 engine = create_engine(DATABASE_URL)
 
