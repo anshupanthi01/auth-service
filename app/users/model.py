@@ -15,6 +15,7 @@ class UserStatus(str, Enum):
     ACTIVE = "active"
     SUSPENDED = "suspended"
     DELETED = "deleted"
+
 class User(Base):
     __tablename__ = "users"
 
@@ -24,10 +25,10 @@ class User(Base):
 
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False, index=True)
 
+    password_hash: Mapped[str] = mapped_column(String(200), nullable=False)
+    
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False ,nullable=False, index=True)
     email_verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-
-    password_hash: Mapped[str] = mapped_column(String(200), nullable=False)
 
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False, index=True)
 
@@ -42,9 +43,10 @@ class User(Base):
     onupdate=func.now(), 
     nullable=False)
 
+    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    
     status: Mapped[UserStatus] = mapped_column(Enum(UserStatus), default=UserStatus.PENDING_VERIFICATION ,nullable=False)
 
-    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # reset_tokens: Mapped[List[PasswordResetToken]]
 
