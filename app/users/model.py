@@ -4,17 +4,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional  
 from database.database import Base 
 from datetime import datetime
-
-class UserRole(str, Enum):
-    ADMIN = "admin"
-    MODERATOR = "moderator"
-    USER = "user"
-
-class UserStatus(str, Enum):
-    PENDING_VERIFICATION = "pending_verification"
-    ACTIVE = "active"
-    SUSPENDED = "suspended"
-    DELETED = "deleted"
+from app.core.enums import UserRole, UserStatus
 
 class User(Base):
     __tablename__ = "users"
@@ -23,7 +13,7 @@ class User(Base):
 
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
 
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(String(300), unique=True, nullable=False, index=True)
 
     password_hash: Mapped[str] = mapped_column(String(200), nullable=False)
     
@@ -46,8 +36,8 @@ class User(Base):
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     
     status: Mapped[UserStatus] = mapped_column(Enum(UserStatus), default=UserStatus.PENDING_VERIFICATION ,nullable=False)
-
-
+    
+    deletion_requested_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     # reset_tokens: Mapped[List[PasswordResetToken]]
 
 
