@@ -10,6 +10,11 @@ from app.users.schema import UserUpdate
 class UserNotFoundError(Exception):
     pass
 
+class UsernameAlreadyExists(Exception):
+    pass
+
+class EmailAlreadyInUse(Exception):
+    pass
 
 class UserService:
     def __init__(self, user_repo: UserRepository, session: AsyncSession):
@@ -36,14 +41,34 @@ class UserService:
             raise UserNotFoundError("User not found.")
 
         # 2. Check username duplication (if username is being changed)
+        if user_update.username is not None and user_update.username != user.username:
+            existing_username = await self.user_repo.find_by_username(user_update.username)
+            if existing_username is not None:
+                raise UsernameAlreadyExists("Username already exist.")
 
         # 3. Check email duplication (if email is being changed)
+        email_changed = False
+        if user_update.email is not None and user_update.email != user.email:
+            existing_email = await self.user_repo.find_by_email(user_update.email)
+            if existing_email is not None:
+                raise EmailAlreadyInUse("Email already in use.")
+            email_changed = True
 
         # 4. Update only the provided fields
+        if user_update.username is not None:
+            user.username = user_update.username
+        if user_update.email is not None:
+            user.email = user_update.email
+
+        if email_changed:
+            user.email_verified = False
+            user.email_verified_at = None
 
         # 5. Commit the transaction
+        await self.session.commit()
 
         # 6. Refresh the ORM object
+        await self.session.refresh(user)
 
         # 7. Return the updated user
         return user
