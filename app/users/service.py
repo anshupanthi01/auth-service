@@ -5,16 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.model import User
 from app.users.repository import UserRepository
 from app.users.schema import UserUpdate
-
-
-class UserNotFoundError(Exception):
-    pass
-
-class UsernameAlreadyExists(Exception):
-    pass
-
-class EmailAlreadyInUse(Exception):
-    pass
+from app.users.exceptions import UserNotFoundError, UsernameAlreadyExists, EmailAlreadyInUse
 
 class UserService:
     def __init__(self, user_repo: UserRepository, session: AsyncSession):
@@ -64,11 +55,6 @@ class UserService:
             user.email_verified = False
             user.email_verified_at = None
 
-        # 5. Commit the transaction
         await self.session.commit()
-
-        # 6. Refresh the ORM object
         await self.session.refresh(user)
-
-        # 7. Return the updated user
         return user
