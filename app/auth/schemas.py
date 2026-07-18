@@ -1,22 +1,34 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
-from datetime import datetime
-from typing import Optional, Annotated
+from typing import Annotated
 
 class UserRegister(BaseModel):
-    username: str = Field(min_length=1, max_length=50)
+    username: str = Field(min_length=3, max_length=50)
     email:  Annotated[EmailStr, Field(max_length=254)]
-    password: str = Field(min_length=8)
+    password: str = Field(min_length=8, max_length=128)
 
-class LoginRequest(BaseModel):
-    username: str | None = Field(default=None, min_length=1, max_length=50) 
-    email: Annotated[EmailStr, Field(max_length=254)]  | None = None
-    password: str
 
-class TokenResponse(BaseModel):
+class RegisterResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    message: str = "User registered successfully!!"
     access_token: str
     refresh_token: str
     token_type:str = "bearer"
- 
+
+class LoginRequest(BaseModel):
+    username: str | None = Field(default=None, min_length=3, max_length=50) 
+    email: Annotated[EmailStr, Field(max_length=254)]  | None = None
+    password: str = Field(min_length=8, max_length=128)
+
+class TokenResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    access_token: str
+    refresh_token: str
+    token_type:str = "bearer"
+    expires_in: int
+
+class LoginResponse(TokenResponse):
+    pass
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
@@ -24,15 +36,15 @@ class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
 class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: str = Field(min_length=8)
+    reset_token: str
+    new_password: str = Field(min_length=8, max_length=128)
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
-    new_password: str = Field(min_length=8)
+    new_password: str = Field(min_length=8, max_length=128)
 
 class EmailVerificationRequest(BaseModel):
-    token: str
+    verification_token: str
 
-class UserRegisterResponse(TokenResponse):
-    message: str = "User registered successfully!!"
+class LogoutRequest(BaseModel):
+    refresh_token: str
