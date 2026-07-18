@@ -7,6 +7,7 @@ from app.users.repository import UserRepository
 from app.users.schema import UserUpdate
 from app.users.exceptions import UserNotFoundError, UsernameAlreadyExists, EmailAlreadyInUse
 
+# Service modifies tracked objects.
 class UserService:
     def __init__(self, user_repo: UserRepository, session: AsyncSession):
         self.user_repo = user_repo
