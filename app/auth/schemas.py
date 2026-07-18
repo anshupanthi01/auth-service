@@ -3,25 +3,33 @@ from datetime import datetime
 from typing import Optional, Annotated
 
 class UserRegister(BaseModel):
-    pass
+    username: str
+    email: EmailStr 
+    password: str 
 
 class LoginRequest(BaseModel):
-    pass
+    # username: str 
+    email: EmailStr
+    password: str
 
 class TokenResponse(BaseModel):
-    pass
+    acess_token: str
+    refresh_token: str
+    token_type:str = "bearer"
  
 class RefreshTokenRequest(BaseModel):
-    pass
+    refresh_token: str
 
 class ForgotPasswordRequest(BaseModel):
-    pass
+    email: EmailStr
 
 class ResetPasswordRequest(BaseModel):
-    pass
+    token: str
+    new_pasword: str
 
 class ChangePasswordRequest(BaseModel):
-    pass
+    current_password: str
+    new_password: str
 
 class EmailVerificationRequest(BaseModel):
-    pass
+    token: str
