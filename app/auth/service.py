@@ -12,7 +12,7 @@ class AuthService:
         self.user_repo = user_repo
         self.session = session
 
-    async def register(self, user_register: s.UserRegister) -> s.TokenResponse:
+    async def register(self, user_register: s.UserRegister) -> s.RegisterResponse:
         pass
         # 1. Check username uniqueness.
         # 2. Check email uniqueness.

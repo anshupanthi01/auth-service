@@ -1,17 +1,11 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
-from typing import Annotated
+from typing import Annotated, Literal
 
 class UserRegister(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     email:  Annotated[EmailStr, Field(max_length=254)]
     password: str = Field(min_length=8, max_length=128)
 
-
-class RegisterResponse(BaseModel):
-    message: str = "User registered successfully!!"
-    access_token: str
-    refresh_token: str
-    token_type:str = "bearer"
 
 class LoginRequest(BaseModel):
     username: str | None = Field(default=None, min_length=3, max_length=50) 
@@ -21,8 +15,11 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
-    token_type:str = "bearer"
+    token_type:Literal["Bearer"] = "bearer"
     expires_in: int
+
+class RegisterResponse(TokenResponse):
+    pass
 
 class LoginResponse(TokenResponse):
     pass
