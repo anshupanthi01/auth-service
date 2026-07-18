@@ -7,7 +7,7 @@ class UserProfileResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     username:str = Field(min_length=1, max_length=50)
-    email: Annotated[EmailStr, Field(max_length=200)]
+    email: Annotated[EmailStr, Field(max_length=300)]
     role: UserRole
     status: UserStatus
     created_at: datetime
