@@ -8,7 +8,6 @@ class UserRegister(BaseModel):
 
 
 class RegisterResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
     message: str = "User registered successfully!!"
     access_token: str
     refresh_token: str
@@ -20,7 +19,6 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 class TokenResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
     access_token: str
     refresh_token: str
     token_type:str = "bearer"
