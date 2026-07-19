@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from authlib.jose import jwt, JoseError
 from app.core.config import settings as s
-from typing import Any
+from typing import Any, Literal
 from passlib.context import CryptContext
-from exceptions import InvalidTokenError
+from app.exceptions import InvalidTokenError
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -13,39 +13,61 @@ def hash_password(password: str)->str:
 def verify_password(plain_password: str, hashed_password: str)->bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-def create_access_token( data: dict[str, Any], expires_delta: timedelta | None = None ) -> str:
+def create_token( 
+        data: dict[str, Any], 
+        token_type: Literal["access", "refresh"], 
+        expires_delta: timedelta | None = None ) -> str:
+    
     payload = data.copy()
 
-    expire = datetime.now(timezone.utc) + (
-        expires_delta
-        if expires_delta
-        else timedelta(minutes= s.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-
+    if expires_delta is None:
+        if token_type == "access":
+            expires_delta = timedelta(
+                minutes=s.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
+        else:
+            expires_delta = timedelta(
+                days=s.REFRESH_TOKEN_EXPIRE_DAYS
+            )
+    now = datetime.now(timezone.utc)
     payload.update(
         {
-            "exp": expire,
-            "iat": datetime.now(timezone.utc),
+            "exp": now + expires_delta,
+            "iat": now,
+            "type": token_type
         }
     )
 
     return jwt.encode(
-        algorithm= s.algorithm,
+        algorithm= s.ALGORITHM,
         payload= payload,
         key= s.SECRET_KEY.get_secret_value()
     )
 
-
-def decode_token(token: str) -> dict[str, Any]:
+def decode_token(
+        token: str, 
+        expected_type: Literal["access", "refresh"]) -> dict[str, Any]:
     try:
         claims = jwt.decode(
-        token, 
-        s.SECRET_KEY.get_secret_value())
+            token,
+            s.SECRET_KEY.get_secret_value()
+            )
         claims.validate()
-        return claims
+        if claims.get("type") != expected_type:
+            raise InvalidTokenError(
+                description=f"Expected {expected_type} token"
+                )
+        subject = claims.get("sub")
+        if subject is None:
+            raise InvalidTokenError(
+                    description="Token missing subject"
+                )
+        return dict(claims)
+            
     except JoseError:
         raise InvalidTokenError(
             description= "Invalid or expired token"
         )
+    
 
 
