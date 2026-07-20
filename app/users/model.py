@@ -20,7 +20,7 @@ class User(Base):
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False ,nullable=False, index=True)
     email_verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False, index=True)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.USER,nullable=False, index=True)
 
     created_at: Mapped[datetime] = mapped_column(
     DateTime(timezone=True), 

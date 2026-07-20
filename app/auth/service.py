@@ -17,7 +17,6 @@ class AuthService:
     async def register(self, user_register: s.UserRegister) -> s.RegisterResponse:
         username = user_register.username.strip()
         email = user_register.email.lower().strip()
-
         # 1. Check username uniqueness.
         existing_user = await self.user_repo.find_by_username(username)
         if existing_user:
@@ -42,22 +41,23 @@ class AuthService:
         except Exception:
             await self.session.rollback()
             raise
-
         # 7. Refresh user.
         await self.session.refresh(user)     
 
         # 8. Generate access token.
+        payload = {
+            "sub": str(user.id),
+            "role": user.role.value,
+            }
         access_token = create_token(
-            data={"sub": str(user.id)},
-            token_type="access",
-            
+            data=payload,
+            token_type="access"
             )
         # 9. Generate refresh token.
         refresh_token = create_token(
-            data={"sub": str(user.id)},
+            data=payload,
             token_type="refresh"
             )
-
         # 10. Return RegisterResponse.
         return s.RegisterResponse(
             access_token=access_token,
