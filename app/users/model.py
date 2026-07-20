@@ -2,7 +2,7 @@ from __future__ import annotations
 from sqlalchemy import String, Enum, Integer, DateTime, func, Boolean
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional  
-from database.database import Base 
+from app.database.database import Base 
 from datetime import datetime
 from app.core.enums import UserRole, UserStatus
 

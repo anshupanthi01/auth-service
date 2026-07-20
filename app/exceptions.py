@@ -11,11 +11,12 @@ class UserNotFoundError(AppError):
     pass
 
 class UsernameAlreadyExistsError(AppError):
-    pass
+    def __init__(self, description: str = "Username already exists."):
+        super().__init__(409, description)
 
 class EmailAlreadyExistsError(AppError):
-    pass
-
+    def __init__(self, description: str = "Email already exists."):
+        super().__init__(409, description)
 # ===== Authentication =====
 
 class InvalidCredentialsError(AppError):

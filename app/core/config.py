@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     )
 
     DATABASE_URL:str = "sqlite+aiosqlite:///./auth.db"
-    SECRET_KEY: SecretStr
+    SECRET_KEY: SecretStr = "my_secret"
     ALGORITHM: str = 'HS256'
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     RESET_TOKEN_EXPIRE_MIN: int = 60

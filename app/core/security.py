@@ -39,7 +39,7 @@ def create_token(
     )
 
     return jwt.encode(
-        algorithm= s.ALGORITHM,
+        {"alg": s.ALGORITHM},
         payload= payload,
         key= s.SECRET_KEY.get_secret_value()
     )

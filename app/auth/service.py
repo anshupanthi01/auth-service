@@ -3,9 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.model import User
 from app.users.repository import UserRepository
 from app.auth import schemas as s
-from app.exceptions import UsernameAlreadyExistsError, EmailAlreadyExistsError
+from app.exceptions import UserNotFoundError, UsernameAlreadyExistsError, EmailAlreadyExistsError
 from app.core.security import hash_password
 from app.core.security import create_token
+from app.core.config import settings
 
 class AuthService:
     """Business layer: rules + validations + transformations."""
@@ -20,11 +21,11 @@ class AuthService:
         # 1. Check username uniqueness.
         existing_user = await self.user_repo.find_by_username(username)
         if existing_user:
-            raise UsernameAlreadyExistsError()
+            raise UsernameAlreadyExistsError("Username already exists.")
         # 2. Check email uniqueness.
         existing_email = await self.user_repo.find_by_email(email)
         if existing_email:
-            raise EmailAlreadyExistsError()
+            raise EmailAlreadyExistsError("Email already in use.")
         # 3. Hash password. 
         password_hash = hash_password(user_register.password)
         # 4. Create User ORM object.
@@ -62,5 +63,6 @@ class AuthService:
         return s.RegisterResponse(
             access_token=access_token,
             refresh_token= refresh_token,
+            expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
             )
         
