@@ -16,6 +16,7 @@ class AuthService:
         self.session = session
 
     async def register(self, user_register: s.UserRegister) -> s.RegisterResponse:
+        # Normalize identifier first
         username = user_register.username.strip()
         email = user_register.email.lower().strip()
         # 1. Check username uniqueness.
@@ -65,4 +66,8 @@ class AuthService:
             refresh_token= refresh_token,
             expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
             )
-        
+    
+    async def login(self, user_login: s.LoginRequest) -> s.LoginResponse:
+        # Normalize identifier first
+        username = user_login.username.strip()
+        email = user_login.email.lower.strip()

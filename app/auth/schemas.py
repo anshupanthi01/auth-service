@@ -4,13 +4,13 @@ from typing import Annotated, Literal
 class UserRegister(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     email:  Annotated[EmailStr, Field(max_length=254)]
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=8, max_length=72)
 
 
 class LoginRequest(BaseModel):
     username: str | None = Field(default=None, min_length=3, max_length=50) 
     email: Annotated[EmailStr, Field(max_length=254)]  | None = None
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=8, max_length=72)
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -32,11 +32,11 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     reset_token: str
-    new_password: str = Field(min_length=8, max_length=128)
+    new_password: str = Field(min_length=8, max_length=72)
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
-    new_password: str = Field(min_length=8, max_length=128)
+    new_password: str = Field(min_length=8, max_length=72)
 
 class EmailVerificationRequest(BaseModel):
     verification_token: str
