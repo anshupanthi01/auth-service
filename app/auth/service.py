@@ -112,7 +112,7 @@ class AuthService:
         except Exception:
             await self.session.rollback()
             raise
-
+        
         # Generate access and refresh token
         payload = {
             "sub": str(user.id),
