@@ -17,6 +17,22 @@ class UsernameAlreadyExistsError(AppError):
 class EmailAlreadyExistsError(AppError):
     def __init__(self, description: str = "Email already exists."):
         super().__init__(409, description)
+
+class UserVerificationPending(AppError):
+    def __init__(self, description: str = "User verification is pending."):
+            super().__init__(409, description)
+class UserAccountSuspended(AppError):
+    def __init__(self, description: str = "User account is suspended."):
+            super().__init__(409, description)
+
+class AccountDeletionPending(AppError):
+    def __init__(self, description: str = "Account deletion is pending."):
+            super().__init__(409, description)
+
+class AccountDeleted(AppError):
+    def __init__(self, description: str = "Account deleted."):
+            super().__init__(409, description)
+
 # ===== Authentication =====
 
 class InvalidCredentialsError(AppError):
