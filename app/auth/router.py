@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from app.auth.service import AuthService
 # from app.core.security import create_token, decode_token, hash_password, verify_password
-from app.auth.schemas import UserRegister, RegisterResponse
+from app.auth.schemas import UserRegister, RegisterResponse, LoginResponse, LoginRequest
 from app.database.database import get_db
 from app.users.repository import UserRepository
 
@@ -18,4 +18,13 @@ async def register(user_register: UserRegister, db: Annotated[AsyncSession, Depe
     service = AuthService(user_repo, db)
 
     user = await service.register(user_register) 
+    return user
+
+# ============= USER LOGIN =============
+@router.post('/login', response_model= LoginResponse, status_code= status.HTTP_200_OK)
+async def login(user_login: LoginRequest, db: Annotated[AsyncSession, Depends(get_db)]):
+    user_repo = UserRepository(db)
+    service = AuthService(user_repo, db)
+
+    user = await service.login(user_login)
     return user
