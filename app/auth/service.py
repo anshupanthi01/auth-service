@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.model import User
 from app.users.repository import UserRepository
 from app.auth import schemas as s
-from app import exceptions as exp
+from app.core import exceptions as exp
 from app.core.security import hash_password
 from app.core.security import create_token
 from app.core.config import settings
@@ -70,10 +70,7 @@ class AuthService:
             expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
             )
     
-    def _check_account_status(self, user:User)->None:
-            if user.status == UserStatus.PENDING_VERIFICATION:
-                raise exp.UserVerificationPending()
-            
+    def _check_account_status(self, user:User)->None:            
             if user.status == UserStatus.SUSPENDED:
                 raise exp.UserAccountSuspended()
             
@@ -86,6 +83,9 @@ class AuthService:
         email = user_login.email.lower().strip() if user_login.email else None
         password = user_login.password
         # Find the user and verify password:
+        print(f"username={username!r}")
+        print(f"email={email!r}")
+        print(bool(username), bool(email))
         if bool(username) == bool(email):
             raise exp.InvalidCredentialsError()
         

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.model import User
 from app.users.repository import UserRepository
 from app.users.schema import UserUpdate
-from app.exceptions import UserNotFoundError, UsernameAlreadyExists, EmailAlreadyInUse
+from app.core.exceptions import UserNotFoundError, UsernameAlreadyExists, EmailAlreadyInUse
 
 # Service modifies tracked objects.
 class UserService:

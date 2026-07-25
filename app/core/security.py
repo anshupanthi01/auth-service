@@ -3,7 +3,7 @@ from authlib.jose import jwt, JoseError
 from app.core.config import settings as s
 from typing import Any, Literal
 from passlib.context import CryptContext
-from app.exceptions import InvalidTokenError
+from app.core.exceptions import InvalidTokenError
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
