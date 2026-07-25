@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.users.model import User
+from app.core.exception_handlers import register_exception_handlers
 from app.auth.router import router as auth_router
 from app.database.database import engine, Base
 
@@ -17,7 +18,7 @@ app = FastAPI(
     description="Production-style authentication backend built with FastAPI.",
     lifespan=lifespan,
 )
-
+register_exception_handlers(app)
 app.include_router(auth_router)
 
 

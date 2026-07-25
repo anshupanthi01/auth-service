@@ -1,8 +1,8 @@
 class AppError(Exception):
     """Base class for all application-related exceptions."""
 
-    status_code: int = 500
     description: str = "Application error."
+    status_code: int = 500
 
     def __init__(self, description: str | None = None):
         self.description = description or self.description
