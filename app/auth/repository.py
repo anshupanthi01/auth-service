@@ -15,4 +15,5 @@ class RefreshTokenRepository:
         pass
     async def delete_all_for_user():
         pass
-    
+    async def delete_one():
+        pass
