@@ -13,3 +13,6 @@ class RefreshTokenRepository:
         pass
     async def delete_expired():
         pass
+    async def delete_all_for_user():
+        pass
+    
