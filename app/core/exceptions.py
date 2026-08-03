@@ -66,7 +66,7 @@ class InvalidTokenError(AppError):
     status_code = 401
     description = "Invalid authentication token."
 
-
+    
 class ExpiredTokenError(AppError):
     status_code = 401
     description = "Authentication token has expired."
