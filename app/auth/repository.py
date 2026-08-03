@@ -9,11 +9,15 @@ class RefreshTokenRepository:
 
     async def find_by_hash():
         pass
+
     async def revoke():
         pass
+
     async def delete_expired():
         pass
+
     async def delete_all_for_user():
         pass
+    
     async def delete_one():
         pass
