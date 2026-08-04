@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.model import RefreshToken
+from sqlalchemy import select, delete, update
 
 class RefreshTokenRepository:
     def __init__(self, session: AsyncSession):
@@ -10,7 +11,9 @@ class RefreshTokenRepository:
         return token
 
     async def find_by_hash(self, token_hash: str)-> RefreshToken | None:
-        pass
+        stmt = select(RefreshToken).where(RefreshToken.token_hash == token_hash)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def revoke(self, token: RefreshToken)-> None:
         pass
