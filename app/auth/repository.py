@@ -18,14 +18,15 @@ class RefreshTokenRepository:
     async def revoke_all_for_user(self, user_id: int)-> None:
         pass
 
-    async def find_active_by_user():
+    async def find_active_by_user(self, user_id: int)-> list[RefreshToken]:
         pass
-    
+
+    async def delete_one(self, token: RefreshToken)-> None:
+        pass
+
     async def delete_expired():
         pass
 
     async def delete_all_for_user():
         pass
     
-    async def delete_one():
-        pass
