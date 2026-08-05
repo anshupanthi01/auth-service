@@ -5,6 +5,7 @@ from typing import Optional, List
 from app.database.database import Base 
 from datetime import datetime
 from app.core.enums import UserRole, UserStatus
+from app.auth.model import RefreshToken
 
 class User(Base):
     __tablename__ = "users"
