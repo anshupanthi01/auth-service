@@ -16,16 +16,31 @@ class RefreshTokenRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def revoke(self, token: RefreshToken)-> None:     # Marks one loaded refresh token as revoked eg. User logs out from one device.
+    async def revoke(self, token: RefreshToken)-> None:     
+        """Marks one loaded refresh token as revoked 
+        eg. User logs out from one device.
+        User rotates a refresh token.
+        One token should no longer be usable."""
+
         token.revoked_at= datetime.now(timezone.utc)
 
-    async def revoke_all_for_user(self, user_id: int)-> None:   # Revokes every active refresh token belonging to a user.
+    async def revoke_all_for_user(self, user_id: int)-> None:   
+        """ Revokes every active refresh token belonging to a user 
+        eg. User changes password.
+        Admin forces logout.
+        Log out from all devices. """
+
         stmt = (update(RefreshToken).where(
             RefreshToken.user_id == user_id, 
             RefreshToken.revoked_at.is_(None)).values(revoked_at= datetime.now(timezone.utc)))
         await self.session.execute(stmt)
 
     async def find_active_by_user(self, user_id: int) -> list[RefreshToken]:
+        """ Returns every refresh token that is:
+        owned by the user,
+        not revoked,
+        not expired"""
+
         now = datetime.now(timezone.utc)
 
         stmt = (
@@ -40,15 +55,24 @@ class RefreshTokenRepository:
         return list(result.scalars().all())
 
     async def delete_one(self, token: RefreshToken) -> None:
+        """ Deletes one ORM object.
+        Used when:
+            Removing a single refresh token permanently."""
+        
         await self.session.delete(token)
 
     async def delete_expired(self) -> None:
+        """ Deletes every expired refresh token. """
+
         stmt = delete(RefreshToken).where(
             RefreshToken.expires_at <= datetime.now(timezone.utc)
         )
         await self.session.execute(stmt)
 
     async def delete_all_for_user(self, user_id: int) -> None:
+        """ Deletes every refresh token for one user. 
+        eg. Used when user account is deleted. """
+
         stmt = delete(RefreshToken).where(
             RefreshToken.user_id == user_id
         )
@@ -58,6 +82,8 @@ class RefreshTokenRepository:
             self,
             token_hash: str,
             ) -> RefreshToken | None:
+        """ Finds a refresh token only if it is still valid. """
+        
         stmt = (
         select(RefreshToken)
         .where(
