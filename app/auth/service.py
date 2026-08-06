@@ -25,7 +25,7 @@ class AuthService:
         self.refresh_repo = refresh_repo
         self.session = session
 
-    async def _issue_tokens(self, user: User) -> tuple[str, str]:
+    def _issue_tokens(self, user: User) -> tuple[str, str]:
         payload = {
             "sub": str(user.id),
             "role": user.role.value,
@@ -109,8 +109,7 @@ class AuthService:
         if not user:
             raise exp.InvalidCredentialsError()
         
-        is_valid = verify_password(password, user.password_hash)
-        if not is_valid:
+        if not verify_password(password, user.password_hash):
             raise exp.InvalidCredentialsError()
         # Check account status
         self._check_account_status(user)
