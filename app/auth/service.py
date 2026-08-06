@@ -11,7 +11,6 @@ from app.core.security import verify_password
 from app.core.enums import UserStatus
 from datetime import datetime, timezone
 from app.auth.repository import RefreshTokenRepository
-import secrets
 
 class AuthService:
     """Business layer: rules + validations + transformations."""

@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta, timezone
 from authlib.jose import jwt, JoseError
 from app.core.config import settings as s
-from typing import Any, Literal
+from typing import Any
 from passlib.context import CryptContext
 from app.core.exceptions import InvalidTokenError
+import secrets
+import hashlib
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+# --------------- Password -------------------
 
 def hash_password(password: str)->str:
     return pwd_context.hash(password)
@@ -13,8 +17,21 @@ def hash_password(password: str)->str:
 def verify_password(plain_password: str, hashed_password: str)->bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-def create_refresh_token():
-    pass
+# --------------- Refresh Token -------------------
+
+def create_refresh_token()-> str:
+    return secrets.token_urlsafe(64)
+
+def hash_refresh_token(token: str)-> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+"""Why SHA-256 instead of bcrypt?
+    SHA-256 is a good fit because it is:
+    Fast
+    Deterministic
+    Widely used for hashing opaque tokens"""
+
+# --------------- Access Token -------------------
 
 def create_access_token( 
         data: dict[str, Any], 
@@ -51,7 +68,7 @@ def decode_access_token(token: str) -> dict[str, Any]:
 
         if claims.get("type") != "access":
             raise InvalidTokenError(
-                description=f"Expected access token"
+                description="Expected access token"
                 )
         
         subject = claims.get("sub")
