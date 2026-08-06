@@ -13,28 +13,25 @@ def hash_password(password: str)->str:
 def verify_password(plain_password: str, hashed_password: str)->bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-def create_token( 
+def create_refresh_token():
+    pass
+
+def create_access_token( 
         data: dict[str, Any], 
-        token_type: Literal["access", "refresh"], 
         expires_delta: timedelta | None = None ) -> str:
     
     payload = data.copy()
 
     if expires_delta is None:
-        if token_type == "access":
-            expires_delta = timedelta(
-                minutes=s.ACCESS_TOKEN_EXPIRE_MINUTES
-            )
-        else:
-            expires_delta = timedelta(
-                days=s.REFRESH_TOKEN_EXPIRE_DAYS
+        expires_delta = timedelta(
+            minutes=s.ACCESS_TOKEN_EXPIRE_MINUTES
             )
     now = datetime.now(timezone.utc)
     payload.update(
         {
             "exp": now + expires_delta,
             "iat": now,
-            "type": token_type
+            "type": "access"
         }
     )
 
@@ -44,19 +41,19 @@ def create_token(
         key= s.SECRET_KEY.get_secret_value()
     )
 
-def decode_token(
-        token: str, 
-        expected_type: Literal["access", "refresh"]) -> dict[str, Any]:
+def decode_access_token(token: str) -> dict[str, Any]:
     try:
         claims = jwt.decode(
             token,
             s.SECRET_KEY.get_secret_value()
             )
         claims.validate()
-        if claims.get("type") != expected_type:
+
+        if claims.get("type") != "access":
             raise InvalidTokenError(
-                description=f"Expected {expected_type} token"
+                description=f"Expected access token"
                 )
+        
         subject = claims.get("sub")
         if subject is None:
             raise InvalidTokenError(

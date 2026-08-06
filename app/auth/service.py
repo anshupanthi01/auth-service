@@ -5,11 +5,13 @@ from app.users.repository import UserRepository
 from app.auth import schemas as s
 from app.core import exceptions as exp
 from app.core.security import hash_password
-from app.core.security import create_token
+from app.core.security import create_access_token, create_refresh_token
 from app.core.config import settings
 from app.core.security import verify_password
 from app.core.enums import UserStatus
 from datetime import datetime, timezone
+from app.auth.repository import RefreshTokenRepository
+import secrets
 
 class AuthService:
     """Business layer: rules + validations + transformations."""
@@ -59,10 +61,7 @@ class AuthService:
             token_type="access"
             )
         # 9. Generate refresh token.
-        refresh_token = create_token(
-            data=payload,
-            token_type="refresh"
-            )
+        refresh_token = create_refresh_token()
         # 10. Return RegisterResponse.
         return s.RegisterResponse(
             access_token=access_token,
