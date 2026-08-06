@@ -19,7 +19,7 @@ def verify_password(plain_password: str, hashed_password: str)->bool:
 
 # --------------- Refresh Token -------------------
 
-def create_refresh_token()-> str:
+def generate_refresh_token()-> str:
     return secrets.token_urlsafe(64)
 
 def hash_refresh_token(token: str)-> str:
@@ -48,7 +48,8 @@ def create_access_token(
         {
             "exp": now + expires_delta,
             "iat": now,
-            "type": "access"
+            "type": "access",
+            "nbf": now
         }
     )
 
