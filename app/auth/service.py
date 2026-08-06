@@ -56,7 +56,7 @@ class AuthService:
             "sub": str(user.id),
             "role": user.role.value,
             }
-        access_token = create_token(
+        access_token = create_access_token(
             data=payload,
             token_type="access"
             )
@@ -117,11 +117,11 @@ class AuthService:
             "sub": str(user.id),
             "role": user.role.value,
             }
-        access_token = create_token(
+        access_token = create_access_token(
             data=payload,
             token_type="access"
             )
-        refresh_token = create_token(
+        refresh_token = create_refresh_token(
             data=payload,
             token_type="refresh"
             )
