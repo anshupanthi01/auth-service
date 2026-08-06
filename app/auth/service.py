@@ -4,8 +4,12 @@ from app.users.model import User
 from app.users.repository import UserRepository
 from app.auth import schemas as s
 from app.core import exceptions as exp
-from app.core.security import hash_password
-from app.core.security import create_access_token, generate_refresh_token, hash_refresh_token
+from app.core.security import (
+    create_access_token, 
+    generate_refresh_token, 
+    hash_refresh_token, 
+    hash_password
+    )
 from app.core.config import settings
 from app.core.security import verify_password
 from app.core.enums import UserStatus
@@ -20,6 +24,28 @@ class AuthService:
         self.user_repo = user_repo
         self.refresh_repo = refresh_repo
         self.session = session
+
+    async def _issue_tokens(self, user: User) -> tuple[str, str]:
+        payload = {
+            "sub": str(user.id),
+            "role": user.role.value,
+            }
+        # Create access token
+        access_token = create_access_token(data=payload)
+        # Generate refresh token.
+        refresh_token = generate_refresh_token()
+        token_hash = hash_refresh_token(refresh_token)
+        # Create a RefreshToken ORM object
+        now = datetime.now(timezone.utc)
+        refresh = RefreshToken(
+            user_id= user.id,
+            token_hash= token_hash,
+            created_at = now,
+            expires_at= now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+            )
+        # Save it
+        self.refresh_repo.create(refresh)
+        return access_token, refresh_token
 
     async def register(self, user_register: s.UserRegister) -> s.RegisterResponse:
         # Normalize identifier first[]
@@ -42,31 +68,11 @@ class AuthService:
             password_hash = password_hash
         )
         # 5. Save through repository.
-        self.user_repo.create(user)           
-        await self.session.flush()   
-
-        # 8. Generate access token.
-        payload = {
-            "sub": str(user.id),
-            "role": user.role.value,
-            }
-        access_token = create_access_token(
-            data=payload
-            )
-        # 9. Generate refresh token.
-        refresh_token = generate_refresh_token()
-        token_hash = hash_refresh_token(refresh_token)
-        # Create a RefreshToken ORM object
-        refresh = RefreshToken(
-            user_id=user.id,
-            token_hash=token_hash,
-            expires_at=datetime.now(timezone.utc)
-            + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-            )
-        # Save it
-        self.refresh_repo.create(refresh)
-        # Commit it
         try:
+            self.user_repo.create(user)
+            await self.session.flush()  
+            # Create tokens
+            access_token, refresh_token = await self._issue_tokens(user)
             await self.session.commit()
         except Exception:
             await self.session.rollback()
@@ -109,33 +115,11 @@ class AuthService:
         # Check account status
         self._check_account_status(user)
 
-        # Update last login
-        user.last_login = datetime.now(timezone.utc)
-
-        # Generate access and refresh token
-        payload = {
-            "sub": str(user.id),
-            "role": user.role.value,
-            }
-        access_token = create_access_token(
-            data=payload
-            )
-        
-        refresh_token = generate_refresh_token()
-        token_hash = hash_refresh_token(refresh_token)
-        # Create a RefreshToken ORM object
-        now = datetime.now(timezone.utc)
-        refresh = RefreshToken(
-        user_id=user.id,
-        token_hash=token_hash,
-        expires_at= now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-        )
-
-        # Save it
-        self.refresh_repo.create(refresh)
-        
-        # Commit it
         try:
+            # Update last login
+            user.last_login = datetime.now(timezone.utc)
+            # Create tokens
+            access_token, refresh_token = await self._issue_tokens(user)
             await self.session.commit()
         except Exception:
             await self.session.rollback()
